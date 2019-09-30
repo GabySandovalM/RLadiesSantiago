@@ -1,0 +1,75 @@
+---
+title: "Mi primer documento"
+author: "Gaby"
+output: html_document
+---
+Vamos a trabajar con la libreria [gapminder](https://cran.r-project.org/web/packages/gapminder/gapminder.pdf)
+
+Cargamos la libreria
+```{r include=FALSE}
+library(tidyverse)
+library(gapminder)
+```
+La libreria contiene las siguiente variables
+```{r echo=FALSE}
+names(gapminder)
+summary(gapminder)
+```
+##**CHILE**
+###*Esperanza de vida*
+El siguiente grafico muestra la evolucion de la esperanza de vida en Chile
+
+```{r echo=FALSE}
+chile = gapminder %>%
+  filter(country=="Chile")%>%
+  select(year,lifeExp)%>%
+  plot(,type="l",col="blue")
+```
+
+###*GDP*
+
+```{r echo=F}
+chile2 = gapminder %>%
+  filter(country=="Chile")%>%
+  select(year,gdpPercap)
+library(knitr) #para hacer las tablas
+library(kableExtra) #para dar formato a las tablas
+kable(chile2)%>%
+  kable_styling(bootstrap_options = "striped",full_width = F)
+#para centrar la tabla
+#este link puede ayudar para formatos de tablas
+# https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html#table_styles
+```
+
+##**SUDAMERICA**
+###*Esperanza de vida*
+La esperanza de vida de Sudamerica en el periodo de analisis, se observa que se va cerrando la brecha.
+
+```{r echo =FALSE}
+sud= gapminder %>%
+  filter(country %in% c("Argentina","Brasil","Bolivia","Brazil",
+                        "Chile","Colombia","Ecuador","Paraguay",
+                        "Peru","Uruguay","Venezuela"))
+boxplot(sud$lifeExp~sud$year,col="purple")
+
+```
+
+Como esta la situacion en el 2007?
+
+```{r}
+sud2007 = gapminder %>%
+  filter(country %in% c("Argentina","Brasil","Bolivia","Brazil",
+                        "Chile","Colombia","Ecuador","Paraguay",
+                        "Peru","Uruguay","Venezuela")&year==2007)
+tabla = sud2007 %>%
+  select(lifeExp,country) %>%
+  arrange(lifeExp)
+kable(tabla)%>%
+kable_styling(bootstrap_options = "striped",full_width = F) 
+```
+
+
+
+
+
+

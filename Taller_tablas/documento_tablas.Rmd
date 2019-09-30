@@ -1,0 +1,145 @@
+---
+title: "Tablas en Rmarkdown"
+output: pdf_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+#LIBRERIAS
+Las librerias que usaremos en este taller son:
+```{r}
+library(datos)
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(xtable)
+```
+
+#DATOS
+Usaremos la informacion de `mtautos` disponible en el paquete `datos`.
+
+##Descripción
+Los datos fueron extraídos de la revista Motor Trend de Estados Unidos de 1974, y tiene datos de consumo de combustible y 10 aspectos de diseño y rendimiento de automóviles para 32 automóviles (modelos de 1973-1974).
+
+##Variables
+Usaremos la siguientes variables
+
+- **millas**: millas por galón de Estados Unidos.
+
+- **transmision**:tipo de transmisión (0 = automático, 1 = manual).
+
+- **velocidad**: tiempo en recorrer 1/4 de milla.
+
+##Resumen descriptivo
+
+```{r}
+summary(mtautos$millas)
+summary(mtautos$velocidad)
+```
+
+###Tablas usando la función `kable()`
+
+```{r}
+resumen = rbind(summary(mtautos$millas),summary(mtautos$velocidad))
+rownames(resumen) = c("Millas","Velocidad")
+```
+
+- *Opción más sencilla*
+```{r}
+kable(resumen)
+```
+
+- *Un poquito más guapa*
+```{r}
+kable(resumen,booktabs=T)
+```
+
+- *¿Como fijar la posición de mi tabla?
+```{r}
+kable(resumen,booktabs=T) %>%
+  kable_styling(latex_options = c("hold_position"))
+```
+
+- *Pongamos un nombre en la tabla*
+```{r}
+kable(resumen,booktabs=T,caption="Resumen Descriptivo") %>%
+  kable_styling(latex_options = c("hold_position"))
+```
+
+- *Un poco de color*
+```{r}
+kable(resumen,booktabs=T,caption="Resumen Descriptivo") %>%
+  kable_styling(latex_options = c("hold_position","striped"))
+```
+
+- *Tabla muy grande (horizontal)*
+```{r}
+kable(cbind(resumen,resumen,resumen),booktabs=T,caption="Resumen Descriptivo") %>%
+  kable_styling(latex_options = c("hold_position","striped","scale_down"))
+```
+
+- *Cantidad de decimales*
+```{r}
+kable(resumen,booktabs=T,caption="Resumen Descriptivo",digits=2) %>%
+  kable_styling(latex_options = c("hold_position","striped"))
+```
+
+- *Tamaño del texto*
+```{r}
+kable(resumen,booktabs=T,caption="Resumen Descriptivo",digits=2) %>%
+  kable_styling(latex_options = c("hold_position","striped"),font_size = 8)
+```
+
+- *Manipular columnas y filas*
+```{r}
+kable(resumen,booktabs=T,caption="Resumen Descriptivo",digits=2) %>%
+  kable_styling(latex_options = c("hold_position","striped")) %>%
+  column_spec(1,bold=T)%>%
+  row_spec(0,bold=T)
+```
+
+##Resultados de un modelo
+La salida de resultados de `R` no es muy amigable para ser presentada directamente:
+
+```{r}
+mtautos$transmisionfactor = factor(mtautos$transmision,labels=c("automatica","manual"))
+modelo = lm(millas ~ transmisionfactor + velocidad,data=mtautos)
+summary(modelo)
+```
+
+- Presentando el modelo
+
+```{r}
+modelo %>%
+  summary() %>%
+  xtable() %>%
+  kable()
+```
+
+- Coloquemos el formato
+```{r}
+modelo %>%
+  summary() %>%
+  xtable() %>%
+  kable(booktabs=T,caption="Resumen del modelo",digits=2) %>%
+  kable_styling(latex_options = c("hold_position","striped"))
+```
+
+
+#DATOS
+A veces queremos incluir los datos de un análisis, pero la tabla puede ocupar más de una página
+
+```{r}
+midata = mtautos %>% select(millas, velocidad,transmisionfactor)
+kable(midata,booktabs=T,digits=2,caption="Mis datos",longtable=T)%>%
+  kable_styling(latex_options = c("hold_position","repeat_header"))%>%
+  footnote("Estos son los datos que use")
+```
+
